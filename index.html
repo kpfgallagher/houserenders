@@ -89,6 +89,9 @@
             background-color: rgba(0, 0, 0, 0.9);
             z-index: 1000;
             padding: 2rem;
+        }
+
+        .modal.show {
             display: flex;
             justify-content: center;
             align-items: center;
@@ -212,7 +215,9 @@
         const modalImg = document.getElementById('modalImage');
 
         function openModal(element) {
-            modal.style.display = "block";
+            modal.style.display = "flex";
+            modal.style.justifyContent = "center";
+            modal.style.alignItems = "center";
             modalImg.src = element.querySelector('img').src;
             currentImageIndex = Array.from(galleryItems).indexOf(element);
         }
