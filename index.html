@@ -237,6 +237,11 @@
             .next-image {
                 right: 1rem;
             }
+
+            .slider::before {
+                width: 50px;
+                height: 50px;
+            }
         }
     </style>
 </head>
@@ -361,17 +366,31 @@
         }
 
         // Slider functionality
-        slider.addEventListener('mousedown', startDragging);
+        slider.addEventListener('mousedown', handleTouchStart);
+        slider.addEventListener('touchstart', handleTouchStart);
         document.addEventListener('mousemove', drag);
+        document.addEventListener('touchmove', handleTouchMove, { passive: false });
         document.addEventListener('mouseup', stopDragging);
+        document.addEventListener('touchend', stopDragging);
 
-        function startDragging(e) {
+        function handleTouchStart(e) {
             isDragging = true;
             e.preventDefault();
         }
 
+        function handleTouchMove(e) {
+            if (!isDragging) return;
+            e.preventDefault(); // Prevent scrolling while dragging
+            const touch = e.touches[0];
+            handleMove(touch);
+        }
+
         function drag(e) {
             if (!isDragging) return;
+            handleMove(e);
+        }
+
+        function handleMove(e) {
             const container = document.querySelector('.comparison-container');
             const imageRect = beforeImage.getBoundingClientRect();
             const containerRect = container.getBoundingClientRect();
@@ -393,6 +412,34 @@
 
         function stopDragging() {
             isDragging = false;
+        }
+
+        // Add touch support for modal navigation
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        modal.addEventListener('touchstart', function(e) {
+            touchStartX = e.touches[0].clientX;
+        }, { passive: true });
+
+        modal.addEventListener('touchend', function(e) {
+            touchEndX = e.changedTouches[0].clientX;
+            handleSwipe();
+        }, { passive: true });
+
+        function handleSwipe() {
+            const swipeThreshold = 50; // minimum distance for a swipe
+            const swipeDistance = touchEndX - touchStartX;
+            
+            if (Math.abs(swipeDistance) > swipeThreshold) {
+                if (swipeDistance > 0) {
+                    // Swiped right
+                    changeImage(-1);
+                } else {
+                    // Swiped left
+                    changeImage(1);
+                }
+            }
         }
 
         // Close modal when clicking outside the image
