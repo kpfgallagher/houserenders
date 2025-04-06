@@ -283,6 +283,7 @@
     </div>
 
     <script>
+        const totalImages = 5; // Update this number when adding new image folders
         let currentImageIndex = 0;
         const modal = document.getElementById('imageModal');
         const beforeImage = document.getElementById('beforeImage');
@@ -361,7 +362,7 @@
         }
 
         function changeImage(direction) {
-            currentImageIndex = (currentImageIndex + direction + 5) % 5 + 1;
+            currentImageIndex = (currentImageIndex + direction + totalImages) % totalImages + 1;
             updateImages();
         }
 
