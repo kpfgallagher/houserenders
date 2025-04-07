@@ -188,8 +188,8 @@
 
         .download-button {
             position: absolute;
-            top: 1.3rem;
-            right: 3.5rem;
+            top: 1.15rem;
+            right: 3.3rem;
             width: 40px;
             height: 40px;
             cursor: pointer;
@@ -208,6 +208,43 @@
             transform: scale(1.1);
         }
 
+        .download-selector {
+            position: absolute;
+            top: 1.25rem;
+            right: 6rem;
+            padding: 0.5rem;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            z-index: 1001;
+        }
+
+        .download-selector select {
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            padding: 0.1rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .download-selector select option {
+            background-color: #1a1a1a;
+            color: white;
+        }
+
+        .download-label {
+            position: absolute;
+            top: 0rem;
+            right: 5.8rem;
+            padding: 0.5rem;
+            text-align: center;
+            color: #a0a0a0;
+            font-size: 0.7rem;
+            font-weight: 300;
+        }
+
         .modal-nav {
             position: absolute;
             top: 50%;
@@ -224,6 +261,43 @@
 
         .modal-nav:hover {
             background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .image-selector {
+            position: absolute;
+            top: 10rem;
+            padding: 0.5rem;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            z-index: 1001;
+        }
+
+        .left-selector {
+            left: 2rem;
+        }
+
+        .right-selector {
+            right: 2rem;
+        }
+
+        .image-selector select {
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            padding: 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .image-selector select option {
+            background-color: #1a1a1a;
+            color: white;
+        }
+
+        .image-selector label {
+            margin-right: 0.5rem;
         }
 
         .prev-image {
@@ -273,19 +347,19 @@
         <div class="subtitle">by Kieran Gallagher</div>
         <div class="gallery">
             <div class="gallery-item" onclick="openModal(1)">
-                <img src="images/1419/1/after.png" alt="View 1">
+                <img src="images/1419/1/palette1.png" alt="View 1">
             </div>
             <div class="gallery-item" onclick="openModal(2)">
-                <img src="images/1419/2/after.png" alt="View 2">
+                <img src="images/1419/2/palette1.png" alt="View 2">
             </div>
             <div class="gallery-item" onclick="openModal(3)">
-                <img src="images/1419/3/after.png" alt="View 3">
+                <img src="images/1419/3/palette1.png" alt="View 3">
             </div>
             <div class="gallery-item" onclick="openModal(4)">
-                <img src="images/1419/4/after.png" alt="View 4">
+                <img src="images/1419/4/palette1.png" alt="View 4">
             </div>
             <div class="gallery-item" onclick="openModal(5)">
-                <img src="images/1419/5/after.png" alt="View 5">
+                <img src="images/1419/5/palette1.png" alt="View 5">
             </div>
         </div>
     </div>
@@ -293,7 +367,19 @@
     <!-- Modal -->
     <div class="modal" id="imageModal">
         <span class="close-modal" onclick="closeModal()">&times;</span>
+        <div class="download-label">Select Download:</div>
         <button class="download-button" onclick="downloadImage()" title="Download Image"></button>
+        <div class="download-selector">
+            <select id="downloadImageSelect"></select>
+        </div>
+        <div class="image-selector left-selector">
+            <label for="leftImage">Left:</label>
+            <select id="leftImage" onchange="updateLeftImage()"></select>
+        </div>
+        <div class="image-selector right-selector">
+            <label for="rightImage">Right:</label>
+            <select id="rightImage" onchange="updateRightImage()"></select>
+        </div>
         <span class="modal-nav prev-image" onclick="changeImage(-1)">&#10094;</span>
         <span class="modal-nav next-image" onclick="changeImage(1)">&#10095;</span>
         <div class="modal-content">
@@ -307,12 +393,61 @@
 
     <script>
         const totalImages = 5; // Update this number when adding new image folders
+        const numPalettes = 2;
         let currentImageIndex = 0;
         const modal = document.getElementById('imageModal');
         const beforeImage = document.getElementById('beforeImage');
         const afterImage = document.getElementById('afterImage');
         const slider = document.getElementById('slider');
+        const leftImageSelect = document.getElementById('leftImage');
+        const rightImageSelect = document.getElementById('rightImage');
+        const downloadImageSelect = document.getElementById('downloadImageSelect');
         let isDragging = false;
+
+        function populateImageSelectors() {
+            // Clear existing options
+            leftImageSelect.innerHTML = '';
+            rightImageSelect.innerHTML = '';
+            downloadImageSelect.innerHTML = '';
+
+            // Add options for each palette
+            for (let i = 0; i <= numPalettes; i++) {
+                const optionText = i === 0 ? 'Original' : `Palette ${i}`;
+                const optionValue = i === 0 ? 'original.png' : `palette${i}.png`;
+
+                const leftOption = document.createElement('option');
+                leftOption.value = optionValue;
+                leftOption.textContent = optionText;
+                leftImageSelect.appendChild(leftOption);
+
+                const rightOption = document.createElement('option');
+                rightOption.value = optionValue;
+                rightOption.textContent = optionText;
+                rightImageSelect.appendChild(rightOption);
+
+                const downloadOption = document.createElement('option');
+                downloadOption.value = optionValue;
+                downloadOption.textContent = optionText;
+                downloadImageSelect.appendChild(downloadOption);
+            }
+
+            // Set default selections
+            leftImageSelect.value = 'original.png';
+            rightImageSelect.value = 'palette1.png';
+            downloadImageSelect.value = 'palette1.png';
+        }
+
+        function updateLeftImage() {
+            const selectedImage = leftImageSelect.value;
+            beforeImage.src = `images/1419/${currentImageIndex}/${selectedImage}`;
+            checkImagesLoaded();
+        }
+
+        function updateRightImage() {
+            const selectedImage = rightImageSelect.value;
+            afterImage.src = `images/1419/${currentImageIndex}/${selectedImage}`;
+            checkImagesLoaded();
+        }
 
         function openModal(index) {
             currentImageIndex = index;
@@ -325,8 +460,11 @@
             afterImage.style.display = 'block';
             slider.classList.remove('visible');
             
-            // Update images after a short delay to ensure proper display
-            setTimeout(updateImages, 100);
+            // Populate and update selectors
+            populateImageSelectors();
+            
+            // Update images immediately with the selected values
+            updateImages();
         }
 
         function closeModal() {
@@ -334,32 +472,35 @@
         }
 
         function updateImages() {
-            beforeImage.src = `images/1419/${currentImageIndex}/before.png`;
-            afterImage.src = `images/1419/${currentImageIndex}/after.png`;
+            const leftSelectedImage = leftImageSelect.value;
+            const rightSelectedImage = rightImageSelect.value;
+            
+            beforeImage.src = `images/1419/${currentImageIndex}/${leftSelectedImage}`;
+            afterImage.src = `images/1419/${currentImageIndex}/${rightSelectedImage}`;
             
             // Hide slider until images are loaded
             slider.classList.remove('visible');
             
             // Add error handling for image loading
             beforeImage.onerror = function() {
-                console.error(`Failed to load before image: images/${currentImageIndex}/before.png`);
+                console.error(`Failed to load before image: images/1419/${currentImageIndex}/${leftSelectedImage}`);
                 this.style.display = 'none';
             };
             
             afterImage.onerror = function() {
-                console.error(`Failed to load after image: images/${currentImageIndex}/after.png`);
+                console.error(`Failed to load after image: images/1419/${currentImageIndex}/${rightSelectedImage}`);
                 this.style.display = 'none';
             };
             
             // Add load success handlers
             beforeImage.onload = function() {
-                console.log(`Successfully loaded before image: images/${currentImageIndex}/before.png`);
+                console.log(`Successfully loaded before image: images/1419/${currentImageIndex}/${leftSelectedImage}`);
                 this.style.display = 'block';
                 checkImagesLoaded();
             };
             
             afterImage.onload = function() {
-                console.log(`Successfully loaded after image: images/${currentImageIndex}/after.png`);
+                console.log(`Successfully loaded after image: images/1419/${currentImageIndex}/${rightSelectedImage}`);
                 this.style.display = 'block';
                 checkImagesLoaded();
             };
@@ -385,7 +526,7 @@
         }
 
         function changeImage(direction) {
-            currentImageIndex = (currentImageIndex + direction + totalImages) % totalImages + 1;
+            currentImageIndex = (currentImageIndex + direction + totalImages) % totalImages;
             updateImages();
         }
 
@@ -489,15 +630,15 @@
         });
 
         function downloadImage() {
-            const afterImage = document.getElementById('afterImage');
-            const imageUrl = afterImage.src;
+            const selectedImage = downloadImageSelect.value;
+            const imageUrl = `images/1419/${currentImageIndex}/${selectedImage}`;
             
             // Create a temporary link element
             const link = document.createElement('a');
             link.href = imageUrl;
             
             // Set the filename and force download
-            const filename = `1419_view_${currentImageIndex}_after.png`;
+            const filename = `1419_view_${currentImageIndex}_${selectedImage}`;
             link.download = filename;
             
             // Append to body, click, and remove
