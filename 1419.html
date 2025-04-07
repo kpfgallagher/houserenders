@@ -526,7 +526,7 @@
         }
 
         function changeImage(direction) {
-            currentImageIndex = (currentImageIndex + direction + totalImages) % totalImages;
+            currentImageIndex = ((currentImageIndex - 1 + direction + totalImages) % totalImages) + 1;
             updateImages();
         }
 
